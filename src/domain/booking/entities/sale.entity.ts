@@ -1,3 +1,7 @@
+import { v4 as uuidv4 } from 'uuid';
+
+import { Price } from '@domain/cinema/value-objects/price.vo';
+
 export class Sale {
   private readonly id: string;
 
@@ -9,9 +13,9 @@ export class Sale {
 
   private readonly seatNumbers: number[];
 
-  private readonly totalPrice: number;
+  private readonly totalPrice: Price;
 
-  private readonly paidAt: Date;
+  private readonly confirmedAt: Date;
 
   private readonly createdAt: Date;
 
@@ -23,17 +27,13 @@ export class Sale {
     sessionId: string,
     userId: string,
     seatNumbers: number[],
-    totalPrice: number,
-    paidAt: Date = new Date(),
+    totalPrice: Price,
+    confirmedAt: Date = new Date(),
     createdAt: Date = new Date(),
     version: number = 0,
   ) {
     if (seatNumbers.length === 0) {
       throw new Error('At least one seat must be sold');
-    }
-
-    if (totalPrice <= 0) {
-      throw new Error('Total price must be positive');
     }
 
     this.id = id;
@@ -42,7 +42,7 @@ export class Sale {
     this.userId = userId;
     this.seatNumbers = seatNumbers;
     this.totalPrice = totalPrice;
-    this.paidAt = paidAt;
+    this.confirmedAt = confirmedAt;
     this.createdAt = createdAt;
     this.version = version;
   }
@@ -67,12 +67,12 @@ export class Sale {
     return [...this.seatNumbers];
   }
 
-  getTotalPrice(): number {
+  getTotalPrice(): Price {
     return this.totalPrice;
   }
 
-  getPaidAt(): Date {
-    return new Date(this.paidAt);
+  getConfirmedAt(): Date {
+    return new Date(this.confirmedAt);
   }
 
   getCreatedAt(): Date {
@@ -83,21 +83,20 @@ export class Sale {
     return this.version;
   }
 
-  static create(
-    id: string,
-    reservationId: string,
-    sessionId: string,
-    userId: string,
-    seatNumbers: number[],
-    totalPrice: number,
-  ): Sale {
+  static create(props: {
+    reservationId: string;
+    sessionId: string;
+    userId: string;
+    seatNumbers: number[];
+    totalPrice: Price;
+  }): Sale {
     return new Sale(
-      id,
-      reservationId,
-      sessionId,
-      userId,
-      seatNumbers,
-      totalPrice,
+      uuidv4(),
+      props.reservationId,
+      props.sessionId,
+      props.userId,
+      props.seatNumbers,
+      props.totalPrice,
     );
   }
 
@@ -107,8 +106,8 @@ export class Sale {
     sessionId: string,
     userId: string,
     seatNumbers: number[],
-    totalPrice: number,
-    paidAt: Date,
+    totalPrice: Price,
+    confirmedAt: Date,
     createdAt: Date,
     version: number,
   ): Sale {
@@ -119,7 +118,7 @@ export class Sale {
       userId,
       seatNumbers,
       totalPrice,
-      paidAt,
+      confirmedAt,
       createdAt,
       version,
     );

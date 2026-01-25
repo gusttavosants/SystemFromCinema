@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { IReservationRepository } from '../../../domain/booking/repositories/reservation.repository';
-import { Reservation as ReservationDomain } from '../../../domain/booking/entities/reservation.entity';
+import { Reservation as ReservationDomain } from '@domain/booking/entities/reservation.entity';
+import { IReservationRepository } from '@domain/booking/repositories/reservation.repository';
+import { Price } from '@domain/cinema/value-objects/price.vo';
 import { Reservation as ReservationDB } from '../entities/reservation.entity';
 
 @Injectable()
@@ -19,7 +20,7 @@ export class ReservationRepositoryImpl implements IReservationRepository {
       sessionId: reservation.getSessionId(),
       userId: reservation.getUserId(),
       seatNumber: reservation.getSeatNumbers()[0],
-      totalPrice: reservation.getTotalPrice(),
+      totalPrice: reservation.getTotalPrice().getValue(),
       expiresAt: reservation.getExpiresAt(),
       status: reservation.getStatus(),
       createdAt: reservation.getCreatedAt(),
@@ -119,12 +120,13 @@ export class ReservationRepositoryImpl implements IReservationRepository {
   }
 
   private mapToDomain(reservationDB: ReservationDB): ReservationDomain {
+    const totalPrice = new Price(reservationDB.totalPrice);
     return ReservationDomain.restore(
       reservationDB.id,
       reservationDB.sessionId,
       reservationDB.userId,
       [reservationDB.seatNumber],
-      reservationDB.totalPrice,
+      totalPrice,
       reservationDB.expiresAt,
       reservationDB.status,
       reservationDB.createdAt,

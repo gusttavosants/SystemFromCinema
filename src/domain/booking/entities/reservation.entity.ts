@@ -1,3 +1,7 @@
+import { v4 as uuidv4 } from 'uuid';
+
+import { Price } from '@domain/cinema/value-objects/price.vo';
+
 export class Reservation {
   private readonly id: string;
 
@@ -7,7 +11,7 @@ export class Reservation {
 
   private readonly seatNumbers: number[];
 
-  private readonly totalPrice: number;
+  private readonly totalPrice: Price;
 
   private expiresAt: Date;
 
@@ -22,7 +26,7 @@ export class Reservation {
     sessionId: string,
     userId: string,
     seatNumbers: number[],
-    totalPrice: number,
+    totalPrice: Price,
     expiresAt: Date,
     status: 'pending' | 'confirmed' | 'expired' | 'cancelled' = 'pending',
     createdAt: Date = new Date(),
@@ -30,14 +34,6 @@ export class Reservation {
   ) {
     if (seatNumbers.length === 0) {
       throw new Error('At least one seat must be reserved');
-    }
-
-    if (totalPrice <= 0) {
-      throw new Error('Total price must be positive');
-    }
-
-    if (expiresAt <= new Date()) {
-      throw new Error('Expiration time must be in the future');
     }
 
     this.id = id;
@@ -67,7 +63,7 @@ export class Reservation {
     return [...this.seatNumbers];
   }
 
-  getTotalPrice(): number {
+  getTotalPrice(): Price {
     return this.totalPrice;
   }
 
@@ -118,21 +114,20 @@ export class Reservation {
     this.status = 'cancelled';
   }
 
-  static create(
-    id: string,
-    sessionId: string,
-    userId: string,
-    seatNumbers: number[],
-    totalPrice: number,
-    expirationTimeMs: number = 30000,
-  ): Reservation {
-    const expiresAt = new Date(Date.now() + expirationTimeMs);
+  static create(props: {
+    sessionId: string;
+    userId: string;
+    seatNumbers: number[];
+    totalPrice: Price;
+    expirationTimeMs?: number;
+  }): Reservation {
+    const expiresAt = new Date(Date.now() + (props.expirationTimeMs ?? 30000));
     return new Reservation(
-      id,
-      sessionId,
-      userId,
-      seatNumbers,
-      totalPrice,
+      uuidv4(),
+      props.sessionId,
+      props.userId,
+      props.seatNumbers,
+      props.totalPrice,
       expiresAt,
       'pending',
       new Date(),
@@ -144,7 +139,7 @@ export class Reservation {
     sessionId: string,
     userId: string,
     seatNumbers: number[],
-    totalPrice: number,
+    totalPrice: Price,
     expiresAt: Date,
     status: 'pending' | 'confirmed' | 'expired' | 'cancelled',
     createdAt: Date,

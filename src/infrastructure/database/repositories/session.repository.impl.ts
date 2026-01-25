@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ISessionRepository } from '../../../domain/cinema/repositories/session.repository';
+import { Session as SessionDomain } from '@domain/cinema/entities/session.entity';
+import { ISessionRepository } from '@domain/cinema/repositories/session.repository';
+import { Price } from '@domain/cinema/value-objects/price.vo';
 import { Session as SessionDB } from '../entities/session.entity';
-import { Session as SessionDomain } from '../../../domain/cinema/entities/session.entity';
 
 @Injectable()
 export class SessionRepositoryImpl implements ISessionRepository {
@@ -21,7 +22,7 @@ export class SessionRepositoryImpl implements ISessionRepository {
       showTime: session.getShowTime(),
       room: session.getRoom(),
       totalSeats: session.getTotalSeats(),
-      price: session.getPrice(),
+      price: session.getPrice().getValue(),
       createdAt: session.getCreatedAt(),
     });
 
@@ -77,7 +78,7 @@ export class SessionRepositoryImpl implements ISessionRepository {
     sessionDB.showTime = session.getShowTime();
     sessionDB.room = session.getRoom();
     sessionDB.totalSeats = session.getTotalSeats();
-    sessionDB.price = session.getPrice();
+    sessionDB.price = session.getPrice().getValue();
 
     await this.sessionRepository.save(sessionDB);
   }
@@ -87,13 +88,14 @@ export class SessionRepositoryImpl implements ISessionRepository {
   }
 
   private mapToDomain(sessionDB: SessionDB): SessionDomain {
+    const price = new Price(sessionDB.price);
     return SessionDomain.restore(
       sessionDB.id,
       sessionDB.movieTitle,
       sessionDB.showTime,
       sessionDB.room,
       sessionDB.totalSeats,
-      sessionDB.price,
+      price,
       sessionDB.createdAt,
       sessionDB.version,
     );

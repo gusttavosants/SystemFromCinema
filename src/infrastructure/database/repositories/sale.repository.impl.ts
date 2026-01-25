@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ISaleRepository } from '../../../domain/booking/repositories/sale.repository';
-import { Sale as SaleDomain } from '../../../domain/booking/entities/sale.entity';
+import { Sale as SaleDomain } from '@domain/booking/entities/sale.entity';
+import { ISaleRepository } from '@domain/booking/repositories/sale.repository';
+import { Price } from '@domain/cinema/value-objects/price.vo';
 import { Sale as SaleDB } from '../entities/sale.entity';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class SaleRepositoryImpl implements ISaleRepository {
       sessionId: sale.getSessionId(),
       userId: sale.getUserId(),
       seatNumber: sale.getSeatNumbers()[0],
-      totalPrice: sale.getTotalPrice(),
+      totalPrice: sale.getTotalPrice().getValue(),
       createdAt: sale.getCreatedAt(),
     });
 
@@ -109,13 +110,14 @@ export class SaleRepositoryImpl implements ISaleRepository {
   }
 
   private mapToDomain(saleDB: SaleDB): SaleDomain {
+    const totalPrice = new Price(saleDB.totalPrice);
     return SaleDomain.restore(
       saleDB.id,
       saleDB.reservationId,
       saleDB.sessionId,
       saleDB.userId,
       [saleDB.seatNumber],
-      saleDB.totalPrice,
+      totalPrice,
       saleDB.confirmedAt,
       saleDB.createdAt,
       saleDB.version,
