@@ -20,7 +20,21 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:ps": "docker-compose ps",
+    "docker:restart": "docker-compose restart",
+    "docker:clean": "docker-compose down -v",
+    "docker:test:up": "docker-compose -f docker-compose.test.yml up -d",
+    "docker:test:down": "docker-compose -f docker-compose.test.yml down",
+    "docker:test:clean": "docker-compose -f docker-compose.test.yml down -v",
+    "db:migrate": "npm run typeorm migration:run",
+    "db:migrate:create": "npm run typeorm migration:create",
+    "db:seed": "npm run typeorm query \"INSERT INTO sessions...\"",
+    "db:reset": "npm run typeorm schema:drop && npm run db:migrate"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
