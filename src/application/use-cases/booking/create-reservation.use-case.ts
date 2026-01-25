@@ -28,7 +28,7 @@ export class CreateReservationUseCase {
       throw new Error(`Session with id ${input.sessionId} not found`);
     }
 
-    let reservation: Reservation;
+    let reservation: Reservation | null = null;
 
     await this.unitOfWork.transactionPessimistic(async () => {
       // Lock pessimista para evitar race condition
@@ -65,6 +65,10 @@ export class CreateReservationUseCase {
         await this.seatRepository.update(seat);
       }
     });
+
+    if (!reservation) {
+      throw new Error('Failed to create reservation');
+    }
 
     return this.mapToResponse(reservation);
   }

@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import {
-  Seat as SeatDomain,
-  type SeatStatus,
-} from '@domain/cinema/entities/seat.entity';
+import { Seat, type SeatStatus } from '@domain/cinema/entities/seat.entity';
 import { ISeatRepository } from '@domain/cinema/repositories/seat.repository';
 import { SeatNumber } from '@domain/cinema/value-objects/seat-number.vo';
 import { Seat as SeatDB } from '../entities/seat.entity';
@@ -17,7 +14,7 @@ export class SeatRepositoryImpl implements ISeatRepository {
     private readonly seatRepository: Repository<SeatDB>,
   ) {}
 
-  async create(seat: SeatDomain): Promise<void> {
+  async create(seat: Seat): Promise<void> {
     const seatDB = this.seatRepository.create({
       id: seat.id,
       sessionId: seat.sessionId,
@@ -27,7 +24,7 @@ export class SeatRepositoryImpl implements ISeatRepository {
     await this.seatRepository.save(seatDB);
   }
 
-  async findById(id: string): Promise<SeatDomain | null> {
+  async findById(id: string): Promise<Seat | null> {
     const seatDB = await this.seatRepository.findOne({
       where: { id },
     });
@@ -37,14 +34,14 @@ export class SeatRepositoryImpl implements ISeatRepository {
   async findBySessionAndNumber(
     sessionId: string,
     seatNumber: number,
-  ): Promise<SeatDomain | null> {
+  ): Promise<Seat | null> {
     const seatDB = await this.seatRepository.findOne({
       where: { sessionId, seatNumber },
     });
     return seatDB ? this.mapToDomain(seatDB) : null;
   }
 
-  async findBySessionId(sessionId: string): Promise<SeatDomain[]> {
+  async findBySessionId(sessionId: string): Promise<Seat[]> {
     const seatsDB = await this.seatRepository.find({
       where: { sessionId },
       order: { seatNumber: 'ASC' },
@@ -52,7 +49,7 @@ export class SeatRepositoryImpl implements ISeatRepository {
     return seatsDB.map((seat) => this.mapToDomain(seat));
   }
 
-  async findAvailableSeatsBySession(sessionId: string): Promise<SeatDomain[]> {
+  async findAvailableSeatsBySession(sessionId: string): Promise<Seat[]> {
     const seatsDB = await this.seatRepository.find({
       where: { sessionId, status: 'available' },
       order: { seatNumber: 'ASC' },
@@ -63,7 +60,7 @@ export class SeatRepositoryImpl implements ISeatRepository {
   async findBySessionAndNumbers(
     sessionId: string,
     seatNumbers: number[],
-  ): Promise<SeatDomain[]> {
+  ): Promise<Seat[]> {
     const seatsDB = await this.seatRepository
       .createQueryBuilder('seat')
       .where('seat.sessionId = :sessionId', { sessionId })
@@ -76,7 +73,7 @@ export class SeatRepositoryImpl implements ISeatRepository {
   async findWithPessimisticLock(
     sessionId: string,
     seatNumbers: number[],
-  ): Promise<SeatDomain[]> {
+  ): Promise<Seat[]> {
     const seatsDB = await this.seatRepository
       .createQueryBuilder('seat')
       .setLock('pessimistic_write')
@@ -87,7 +84,7 @@ export class SeatRepositoryImpl implements ISeatRepository {
     return seatsDB.map((seat) => this.mapToDomain(seat));
   }
 
-  async update(seat: SeatDomain): Promise<void> {
+  async update(seat: Seat): Promise<void> {
     const seatDB = await this.seatRepository.findOne({
       where: { id: seat.id },
     });
@@ -104,8 +101,8 @@ export class SeatRepositoryImpl implements ISeatRepository {
     await this.seatRepository.update({ id: seatId }, { status });
   }
 
-  private mapToDomain(seatDB: SeatDB): SeatDomain {
-    return SeatDomain.restore({
+  private mapToDomain(seatDB: SeatDB): Seat {
+    return Seat.restore({
       id: seatDB.id,
       sessionId: seatDB.sessionId,
       seatNumber: new SeatNumber(seatDB.seatNumber),

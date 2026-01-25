@@ -15,7 +15,7 @@ export class ConfirmPaymentUseCase {
   ) {}
 
   async execute(input: ConfirmPaymentRequestDTO): Promise<SaleResponseDTO> {
-    let sale: Sale;
+    let sale: Sale | null = null;
 
     await this.unitOfWork.transaction(async () => {
       const reservation = await this.reservationRepository.findById(
@@ -54,6 +54,10 @@ export class ConfirmPaymentUseCase {
 
       await this.saleRepository.create(sale);
     });
+
+    if (!sale) {
+      throw new Error('Failed to confirm payment');
+    }
 
     return this.mapToResponse(sale);
   }
