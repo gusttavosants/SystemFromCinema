@@ -25,6 +25,7 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
+    "kafka:topics": "docker-compose exec kafka kafka-topics --list --bootstrap-server kafka:9092",
     "docker:ps": "docker-compose ps",
     "docker:restart": "docker-compose restart",
     "docker:clean": "docker-compose down -v",

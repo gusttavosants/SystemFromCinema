@@ -1,16 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Message } from 'kafkajs';
+import { CompressionTypes, type Message } from 'kafkajs';
 import { KafkaClient } from './kafka.client';
 import { DomainEvent } from '@domain/events';
 
 export interface EventPublishOptions {
   key?: string;
   timeout?: number;
+  headers?: Message['headers'];
+  partitionKey?: string;
 }
 
 @Injectable()
-export class EventPublisherService {
-  private readonly logger = new Logger(EventPublisherService.name);
+export class KafkaProducerService {
+  private readonly logger = new Logger(KafkaProducerService.name);
 
   constructor(private readonly kafkaClient: KafkaClient) {}
 
@@ -26,18 +28,27 @@ export class EventPublisherService {
     options?: EventPublishOptions,
   ): Promise<void> {
     const topic = this.getTopicForEventType(eventType);
+    const key = options?.key || this.resolvePartitionKey(eventType, data);
 
     try {
-      await this.publish(topic, [
-        {
-          key: options?.key || `${eventType}-${Date.now()}`,
-          value: JSON.stringify({
-            eventType,
-            data,
-            publishedAt: new Date().toISOString(),
-          }),
-        },
-      ]);
+      await this.publish(
+        topic,
+        [
+          {
+            key,
+            value: JSON.stringify({
+              eventType,
+              data,
+              publishedAt: new Date().toISOString(),
+            }),
+            headers: {
+              'x-event-type': Buffer.from(eventType),
+              ...(options?.headers ?? {}),
+            },
+          },
+        ],
+        options?.timeout,
+      );
 
       this.logger.debug(`Event ${eventType} published to topic ${topic}`);
     } catch (error) {
@@ -68,6 +79,7 @@ export class EventPublisherService {
         topic,
         messages,
         timeout: timeout || 30000,
+        compression: CompressionTypes.GZIP,
       });
     } catch (error) {
       this.logger.error(
@@ -79,19 +91,58 @@ export class EventPublisherService {
     }
   }
 
+  async publishBatch(
+    topic: string,
+    events: Array<{
+      eventType: string;
+      data: DomainEvent;
+      options?: EventPublishOptions;
+    }>,
+  ): Promise<void> {
+    const messages: Message[] = events.map(({ eventType, data, options }) => ({
+      key: options?.key || this.resolvePartitionKey(eventType, data),
+      value: JSON.stringify({
+        eventType,
+        data,
+        publishedAt: new Date().toISOString(),
+      }),
+      headers: {
+        'x-event-type': Buffer.from(eventType),
+        ...(options?.headers ?? {}),
+      },
+    }));
+
+    await this.publish(topic, messages, events[0]?.options?.timeout);
+  }
+
   /**
    * Mapeia tipo de evento para tópico Kafka
    */
   private getTopicForEventType(eventType: string): string {
     const topicMap: Record<string, string> = {
-      ReservationCreated: 'events.reservations',
-      ReservationCancelled: 'events.reservations',
-      PaymentConfirmed: 'events.payments',
-      PaymentFailed: 'events.payments',
-      SessionCreated: 'events.sessions',
-      SessionSoldOut: 'events.sessions',
+      ReservationCreated: 'cinema.reservations',
+      ReservationCancelled: 'cinema.reservations',
+      ReservationExpired: 'cinema.reservations',
+      PaymentConfirmed: 'cinema.payments',
+      PaymentFailed: 'cinema.payments',
+      SessionCreated: 'cinema.notifications',
+      SessionSoldOut: 'cinema.notifications',
     };
 
-    return topicMap[eventType] || `events.${eventType.toLowerCase()}`;
+    return topicMap[eventType] || `cinema.${eventType.toLowerCase()}`;
+  }
+
+  private resolvePartitionKey(eventType: string, data: DomainEvent): string {
+    const candidate =
+      (data as unknown as Record<string, unknown>).sessionId ??
+      (data as unknown as Record<string, unknown>).reservationId ??
+      (data as unknown as Record<string, unknown>).userId ??
+      eventType;
+
+    if (typeof candidate === 'string' || typeof candidate === 'number') {
+      return String(candidate);
+    }
+
+    return eventType;
   }
 }
