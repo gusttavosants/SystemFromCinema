@@ -23,8 +23,10 @@ import {
   UsersController,
 } from './presentation/controllers';
 
+import { RedisModule, DistributedLockService } from '@infrastructure/cache';
+
 @Module({
-  imports: [],
+  imports: [RedisModule],
   controllers: [
     AppController,
     SessionsController,
@@ -34,6 +36,8 @@ import {
   ],
   providers: [
     AppService,
+    // Cache & Locking
+    DistributedLockService,
     // Use cases
     CreateSessionUseCase,
     ListAvailableSeatsUseCase,
