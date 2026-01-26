@@ -46,6 +46,7 @@
     "@nestjs/typeorm": "^11.0.0",
     "class-validator": "^0.14.3",
     "ioredis": "^5.9.2",
+    "kafkajs": "^2.2.4",
     "pg": "^8.17.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",

@@ -24,9 +24,10 @@ import {
 } from './presentation/controllers';
 
 import { RedisModule, DistributedLockService } from '@infrastructure/cache';
+import { EventPublisherModule } from '@infrastructure/messaging';
 
 @Module({
-  imports: [RedisModule],
+  imports: [RedisModule, EventPublisherModule],
   controllers: [
     AppController,
     SessionsController,

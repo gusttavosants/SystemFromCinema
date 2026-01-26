@@ -17,12 +17,14 @@ import {
   CreateReservationUseCase,
   ListAvailableSeatsUseCase,
 } from '@application/use-cases';
+import { EventPublisherService } from '@infrastructure/messaging';
 
 @Controller('reservations')
 export class ReservationsController {
   constructor(
     private readonly createReservationUseCase: CreateReservationUseCase,
     private readonly listAvailableSeatsUseCase: ListAvailableSeatsUseCase,
+    private readonly eventPublisher: EventPublisherService,
   ) {}
 
   @Post()
@@ -30,7 +32,20 @@ export class ReservationsController {
   async create(
     @Body() createReservationDto: CreateReservationRequestDTO,
   ): Promise<ReservationResponseDTO> {
-    return this.createReservationUseCase.execute(createReservationDto);
+    const reservation =
+      await this.createReservationUseCase.execute(createReservationDto);
+
+    await this.eventPublisher.publishEvent('ReservationCreated', {
+      reservationId: reservation.id,
+      sessionId: reservation.sessionId,
+      userId: reservation.userId,
+      seatNumber: reservation.seatNumbers[0] || 0,
+      quantity: reservation.seatNumbers.length,
+      totalPrice: reservation.totalPriceInCents,
+      timestamp: new Date(),
+    });
+
+    return reservation;
   }
 
   @Get(':reservationId')

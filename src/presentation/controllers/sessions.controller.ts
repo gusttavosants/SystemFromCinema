@@ -3,12 +3,14 @@ import { Body, Controller, Get, Param, Post, Version } from '@nestjs/common';
 import { CreateSessionRequestDTO, SessionResponseDTO } from '@application/dtos';
 import { CreateSessionUseCase } from '@application/use-cases';
 import { ListAvailableSeatsUseCase } from '@application/use-cases';
+import { EventPublisherService } from '@infrastructure/messaging';
 
 @Controller('sessions')
 export class SessionsController {
   constructor(
     private readonly createSessionUseCase: CreateSessionUseCase,
     private readonly listAvailableSeatsUseCase: ListAvailableSeatsUseCase,
+    private readonly eventPublisher: EventPublisherService,
   ) {}
 
   @Post()
@@ -16,7 +18,17 @@ export class SessionsController {
   async create(
     @Body() createSessionDto: CreateSessionRequestDTO,
   ): Promise<SessionResponseDTO> {
-    return this.createSessionUseCase.execute(createSessionDto);
+    const session = await this.createSessionUseCase.execute(createSessionDto);
+
+    await this.eventPublisher.publishEvent('SessionCreated', {
+      sessionId: session.id,
+      movieId: session.movieTitle,
+      startTime: new Date(session.showTime),
+      availableSeats: session.totalSeats,
+      timestamp: new Date(),
+    });
+
+    return session;
   }
 
   @Get(':sessionId')
