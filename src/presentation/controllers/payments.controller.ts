@@ -2,13 +2,13 @@ import { Body, Controller, Post, Version } from '@nestjs/common';
 
 import { ConfirmPaymentRequestDTO, SaleResponseDTO } from '@application/dtos';
 import { ConfirmPaymentUseCase } from '@application/use-cases';
-import { EventPublisherService } from '@infrastructure/messaging';
+import { KafkaProducerService } from '@infrastructure/messaging';
 
 @Controller('payments')
 export class PaymentsController {
   constructor(
     private readonly confirmPaymentUseCase: ConfirmPaymentUseCase,
-    private readonly eventPublisher: EventPublisherService,
+    private readonly eventPublisher: KafkaProducerService,
   ) {}
 
   @Post('confirm')

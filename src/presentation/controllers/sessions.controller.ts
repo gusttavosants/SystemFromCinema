@@ -3,14 +3,14 @@ import { Body, Controller, Get, Param, Post, Version } from '@nestjs/common';
 import { CreateSessionRequestDTO, SessionResponseDTO } from '@application/dtos';
 import { CreateSessionUseCase } from '@application/use-cases';
 import { ListAvailableSeatsUseCase } from '@application/use-cases';
-import { EventPublisherService } from '@infrastructure/messaging';
+import { KafkaProducerService } from '@infrastructure/messaging';
 
 @Controller('sessions')
 export class SessionsController {
   constructor(
     private readonly createSessionUseCase: CreateSessionUseCase,
     private readonly listAvailableSeatsUseCase: ListAvailableSeatsUseCase,
-    private readonly eventPublisher: EventPublisherService,
+    private readonly eventPublisher: KafkaProducerService,
   ) {}
 
   @Post()

@@ -17,14 +17,14 @@ import {
   CreateReservationUseCase,
   ListAvailableSeatsUseCase,
 } from '@application/use-cases';
-import { EventPublisherService } from '@infrastructure/messaging';
+import { KafkaProducerService } from '@infrastructure/messaging';
 
 @Controller('reservations')
 export class ReservationsController {
   constructor(
     private readonly createReservationUseCase: CreateReservationUseCase,
     private readonly listAvailableSeatsUseCase: ListAvailableSeatsUseCase,
-    private readonly eventPublisher: EventPublisherService,
+    private readonly eventPublisher: KafkaProducerService,
   ) {}
 
   @Post()

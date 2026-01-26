@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Test, TestingModule } from '@nestjs/testing';
-import { EventPublisherService } from './event-publisher.service';
+import { KafkaProducerService } from './event-publisher.service';
 import { KafkaClient } from './kafka.client';
 import { ReservationCreatedEvent } from '@domain/events';
-import { RecordMetadata } from 'kafkajs';
+import { RecordMetadata, CompressionTypes } from 'kafkajs';
 
-describe('EventPublisherService', () => {
-  let service: EventPublisherService;
+describe('KafkaProducerService', () => {
+  let service: KafkaProducerService;
   let mockProducer: { send: jest.Mock };
 
   beforeEach(async () => {
@@ -23,12 +25,12 @@ describe('EventPublisherService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        EventPublisherService,
+        KafkaProducerService,
         { provide: KafkaClient, useValue: mockKafkaClient },
       ],
     }).compile();
 
-    service = module.get<EventPublisherService>(EventPublisherService);
+    service = module.get<KafkaProducerService>(KafkaProducerService);
   });
 
   describe('publishEvent', () => {
@@ -46,13 +48,15 @@ describe('EventPublisherService', () => {
       await service.publishEvent('ReservationCreated', event);
 
       expect(mockProducer.send).toHaveBeenCalled();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       const callArgs = mockProducer.send.mock.calls[0]?.[0] as {
         topic: string;
         messages: Array<{ key: string; value: string }>;
+        compression: CompressionTypes;
       };
-      expect(callArgs.topic).toBe('events.reservations');
+      expect(callArgs.topic).toBe('cinema.reservations');
       expect(callArgs.messages).toHaveLength(1);
+      expect(callArgs.compression).toBe(CompressionTypes.GZIP);
     });
 
     it('should include event type and timestamp in published message', async () => {
@@ -68,7 +72,6 @@ describe('EventPublisherService', () => {
 
       await service.publishEvent('ReservationCreated', event);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const callArgs = mockProducer.send.mock.calls[0]?.[0] as {
         messages: Array<{ value: string }>;
       };
@@ -80,7 +83,10 @@ describe('EventPublisherService', () => {
       };
 
       expect(value.eventType).toBe('ReservationCreated');
-      expect(value.data).toEqual(event);
+      expect(value.data).toEqual({
+        ...event,
+        timestamp: event.timestamp.toISOString(),
+      });
       expect(value.publishedAt).toBeDefined();
     });
 
@@ -99,7 +105,6 @@ describe('EventPublisherService', () => {
         key: 'custom-key',
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const callArgs = mockProducer.send.mock.calls[0]?.[0] as {
         messages: Array<{ key: string }>;
       };
@@ -118,14 +123,13 @@ describe('EventPublisherService', () => {
 
       await service.publishEvent('PaymentConfirmed', event);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const callArgs = mockProducer.send.mock.calls[0]?.[0] as {
         topic: string;
       };
-      expect(callArgs.topic).toBe('events.payments');
+      expect(callArgs.topic).toBe('cinema.payments');
     });
 
-    it('should publish session created event to sessions topic', async () => {
+    it('should publish session created event to notifications topic', async () => {
       const event = {
         sessionId: 'sess-123',
         movieId: 'movie-456',
@@ -136,11 +140,10 @@ describe('EventPublisherService', () => {
 
       await service.publishEvent('SessionCreated', event);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const callArgs = mockProducer.send.mock.calls[0]?.[0] as {
         topic: string;
       };
-      expect(callArgs.topic).toBe('events.sessions');
+      expect(callArgs.topic).toBe('cinema.notifications');
     });
 
     it('should throw error if producer send fails', async () => {
@@ -169,16 +172,15 @@ describe('EventPublisherService', () => {
 
       await service.publishEvent('CustomEvent', event as never);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const callArgs = mockProducer.send.mock.calls[0]?.[0] as {
         topic: string;
       };
-      expect(callArgs.topic).toBe('events.customevent');
+      expect(callArgs.topic).toBe('cinema.customevent');
     });
   });
 
   describe('publish', () => {
-    it('should publish raw messages to specified topic', async () => {
+    it('should publish raw messages to specified topic with GZIP compression', async () => {
       const messages = [
         {
           key: 'key-1',
@@ -192,6 +194,7 @@ describe('EventPublisherService', () => {
         topic: 'test-topic',
         messages,
         timeout: 30000,
+        compression: CompressionTypes.GZIP,
       });
     });
 
@@ -204,6 +207,7 @@ describe('EventPublisherService', () => {
         topic: 'test-topic',
         messages,
         timeout: 5000,
+        compression: CompressionTypes.GZIP,
       });
     });
 
@@ -226,11 +230,66 @@ describe('EventPublisherService', () => {
 
       await service.publish('test-topic', messages);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const callArgs = mockProducer.send.mock.calls[0]?.[0] as {
         messages: Array<{ key: string }>;
       };
       expect(callArgs.messages).toHaveLength(3);
+    });
+  });
+
+  describe('publishBatch', () => {
+    it('should publish multiple events in batch', async () => {
+      const events = [
+        {
+          eventType: 'ReservationCreated',
+          data: {
+            reservationId: 'res-1',
+            sessionId: 'sess-1',
+            userId: 'user-1',
+            seatNumber: 1,
+            quantity: 1,
+            totalPrice: 10,
+            timestamp: new Date(),
+          },
+          options: { key: 'key-1' },
+        },
+        {
+          eventType: 'PaymentConfirmed',
+          data: {
+            paymentId: 'pay-1',
+            reservationId: 'res-1',
+            amount: 10,
+            method: 'card',
+            timestamp: new Date(),
+          },
+        },
+      ];
+
+      await service.publishBatch('batch-topic', events);
+
+      expect(mockProducer.send).toHaveBeenCalledWith({
+        topic: 'batch-topic',
+        messages: [
+          {
+            key: 'key-1',
+
+            value: expect.any(String),
+            headers: {
+              'x-event-type': Buffer.from('ReservationCreated'),
+            },
+          },
+          {
+            key: expect.any(String),
+
+            value: expect.any(String),
+            headers: {
+              'x-event-type': Buffer.from('PaymentConfirmed'),
+            },
+          },
+        ],
+        timeout: 30000,
+        compression: CompressionTypes.GZIP,
+      });
     });
   });
 });

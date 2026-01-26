@@ -16,10 +16,16 @@ export const kafkaTopicsConfig: ITopicConfig[] = [
     numPartitions: 2,
     replicationFactor: 1,
   },
+  {
+    topic: 'cinema.dead-letter',
+    numPartitions: 1,
+    replicationFactor: 1,
+  },
 ];
 
 export const kafkaConsumerGroups = {
   reservationProcessors: 'reservation-processors',
   paymentProcessors: 'payment-processors',
   notificationSenders: 'notification-senders',
+  dltProcessor: 'dlt-processor',
 } as const;
