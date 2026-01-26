@@ -10,6 +10,15 @@ export interface LockOptions {
   backoffMultiplier?: number;
 }
 
+export interface MultiLockOptions extends LockOptions {
+  globalTimeoutMs?: number;
+}
+
+interface AcquiredLock {
+  resource: string;
+  token: string;
+}
+
 @Injectable()
 export class DistributedLockService {
   private readonly logger = new Logger(DistributedLockService.name);
@@ -17,6 +26,7 @@ export class DistributedLockService {
   private readonly defaultMaxRetries = 3;
   private readonly defaultInitialDelayMs = 50;
   private readonly defaultBackoffMultiplier = 2;
+  private readonly defaultGlobalTimeoutMs = 8000;
 
   constructor(private readonly redisService: RedisService) {}
 
@@ -27,6 +37,7 @@ export class DistributedLockService {
   async acquireLock(
     resource: string,
     options: LockOptions = {},
+    deadlineAt?: number,
   ): Promise<string | null> {
     const ttl = options.ttl || this.defaultTtl;
     const maxRetries = options.maxRetries || this.defaultMaxRetries;
@@ -38,6 +49,13 @@ export class DistributedLockService {
     const lockKey = `lock:${resource}`;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      if (deadlineAt && Date.now() >= deadlineAt) {
+        this.logger.warn(
+          `Deadline reached before acquiring lock ${lockKey} (attempt ${attempt + 1})`,
+        );
+        return null;
+      }
+
       try {
         // Tentar adquirir o lock (SET NX EX)
         const result = await this.redisService
@@ -57,7 +75,7 @@ export class DistributedLockService {
           this.logger.debug(
             `Lock acquisition failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delayMs}ms`,
           );
-          await this.delay(delayMs);
+          await this.delayRespectingDeadline(delayMs, deadlineAt);
         }
       } catch (error) {
         this.logger.error(
@@ -65,7 +83,7 @@ export class DistributedLockService {
         );
         if (attempt < maxRetries) {
           const delayMs = initialDelayMs * Math.pow(backoffMultiplier, attempt);
-          await this.delay(delayMs);
+          await this.delayRespectingDeadline(delayMs, deadlineAt);
         }
       }
     }
@@ -180,10 +198,77 @@ export class DistributedLockService {
     }
   }
 
+  async acquireMultipleLocks(
+    resources: string[],
+    options: MultiLockOptions = {},
+  ): Promise<AcquiredLock[]> {
+    if (resources.length === 0) {
+      return [];
+    }
+
+    const uniqueResources = Array.from(new Set(resources)).sort();
+    const deadlineAt =
+      Date.now() + (options.globalTimeoutMs ?? this.defaultGlobalTimeoutMs);
+    const acquired: AcquiredLock[] = [];
+
+    for (const resource of uniqueResources) {
+      const token = await this.acquireLock(resource, options, deadlineAt);
+
+      if (!token) {
+        await this.releaseAcquiredLocks(acquired);
+        throw new Error(`Failed to acquire lock for resource: ${resource}`);
+      }
+
+      acquired.push({ resource, token });
+    }
+
+    return acquired;
+  }
+
+  async executeWithLocks<T>(
+    resources: string[],
+    callback: () => Promise<T>,
+    options: MultiLockOptions = {},
+  ): Promise<T> {
+    const acquiredLocks = await this.acquireMultipleLocks(resources, options);
+
+    try {
+      return await callback();
+    } finally {
+      await this.releaseAcquiredLocks(acquiredLocks);
+    }
+  }
+
   /**
    * Helper para delay (exponential backoff)
    */
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private async delayRespectingDeadline(
+    requestedDelayMs: number,
+    deadlineAt?: number,
+  ): Promise<void> {
+    if (!deadlineAt) {
+      await this.delay(requestedDelayMs);
+      return;
+    }
+
+    const remainingMs = deadlineAt - Date.now();
+
+    if (remainingMs <= 0) {
+      return;
+    }
+
+    await this.delay(Math.min(requestedDelayMs, remainingMs));
+  }
+
+  private async releaseAcquiredLocks(
+    acquiredLocks: AcquiredLock[],
+  ): Promise<void> {
+    for (const { resource, token } of [...acquiredLocks].reverse()) {
+      await this.releaseLock(resource, token);
+    }
   }
 }

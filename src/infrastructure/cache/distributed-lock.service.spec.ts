@@ -301,6 +301,80 @@ describe('DistributedLockService', () => {
     });
   });
 
+  describe('acquireMultipleLocks', () => {
+    it('should acquire locks in sorted order ensuring uniqueness', async () => {
+      mockRedisClient.set.mockResolvedValue('OK');
+
+      const result = await service.acquireMultipleLocks([
+        'seat:session:2',
+        'seat:session:1',
+        'seat:session:1',
+      ]);
+
+      expect(result).toHaveLength(2);
+      expect(result.map((lock) => lock.resource)).toEqual([
+        'seat:session:1',
+        'seat:session:2',
+      ]);
+      expect(mockRedisClient.set).toHaveBeenNthCalledWith(
+        1,
+        'lock:seat:session:1',
+        expect.any(String),
+        'PX',
+        30000,
+        'NX',
+      );
+      expect(mockRedisClient.set).toHaveBeenNthCalledWith(
+        2,
+        'lock:seat:session:2',
+        expect.any(String),
+        'PX',
+        30000,
+        'NX',
+      );
+    });
+
+    it('should rollback already acquired locks if any acquisition fails', async () => {
+      mockRedisClient.set
+        .mockResolvedValueOnce('OK')
+        .mockResolvedValueOnce(null);
+      mockRedisClient.eval.mockResolvedValue(1);
+      const releaseSpy = jest.spyOn(service, 'releaseLock');
+
+      await expect(
+        service.acquireMultipleLocks(['seat:session:2', 'seat:session:1']),
+      ).rejects.toThrow('Failed to acquire lock for resource: seat:session:2');
+
+      expect(releaseSpy).toHaveBeenCalledTimes(1);
+      expect(releaseSpy).toHaveBeenCalledWith(
+        'seat:session:1',
+        expect.any(String),
+      );
+
+      releaseSpy.mockRestore();
+    });
+  });
+
+  describe('executeWithLocks', () => {
+    it('should release all locks even when callback throws', async () => {
+      mockRedisClient.set.mockResolvedValue('OK');
+      mockRedisClient.eval.mockResolvedValue(1);
+      const callback = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('callback failure'));
+
+      await expect(
+        service.executeWithLocks(
+          ['seat:session:1', 'seat:session:2'],
+          callback,
+        ),
+      ).rejects.toThrow('callback failure');
+
+      expect(callback).toHaveBeenCalled();
+      expect(mockRedisClient.eval).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('edge cases', () => {
     it('should handle concurrent lock attempts', async () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
