@@ -11,13 +11,17 @@ interface JwtPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   constructor(private readonly userRepository: IUserRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_in_production',
+      secretOrKey:
+        process.env.JWT_SECRET ||
+        'your_super_secret_jwt_key_change_in_production',
     });
   }
+  /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 
   async validate(payload: JwtPayload) {
     const { sub: userId } = payload;

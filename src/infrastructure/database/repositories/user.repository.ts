@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { User } from '../../domain/user/entities/user.entity';
-import { IUserRepository } from '../../domain/user/repositories/user.repository';
+import { User } from '@domain/user/entities/user.entity';
+import { IUserRepository } from '@domain/user/repositories/user.repository';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
   constructor(
-    @InjectRepository(User)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    @InjectRepository(User as any)
     private readonly userRepository: Repository<User>,
   ) {}
 

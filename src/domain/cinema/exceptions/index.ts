@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { CinemaException } from '../filters/cinema-exception.filter';
+import { CinemaException } from '@shared/filters/cinema-exception.filter';
 
 export class SessionNotFoundException extends CinemaException {
   constructor(sessionId: string) {
