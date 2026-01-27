@@ -31,7 +31,8 @@ export class StructuredLoggerService implements LoggerService {
             winston.format.colorize(),
             winston.format.timestamp(),
             winston.format.printf(({ timestamp, level, message, ...meta }) => {
-              return `${timestamp} [${level}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
+              // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+              return `${timestamp} [${level}]: ${String(message)} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
             }),
           ),
         }),
@@ -52,26 +53,29 @@ export class StructuredLoggerService implements LoggerService {
   }
 
   log(message: any, context?: LogContext): void {
-    this.logger.info(message, context);
+    this.logger.info(String(message), context);
   }
 
   error(message: any, trace?: string, context?: LogContext): void {
-    this.logger.error(message, { trace, ...context });
+    const level = 'error';
+    const meta = { trace, ...context };
+    this.logger.log(level, String(message), meta);
   }
 
   warn(message: any, context?: LogContext): void {
-    this.logger.warn(message, context);
+    this.logger.warn(String(message), context);
   }
 
   debug(message: any, context?: LogContext): void {
-    this.logger.debug(message, context);
+    this.logger.debug(String(message), context);
   }
 
   verbose(message: any, context?: LogContext): void {
-    this.logger.verbose(message, context);
+    this.logger.verbose(String(message), context);
   }
 
-  setLogLevels?(levels: LogLevel[]): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setLogLevels?(_levels: LogLevel[]): void {
     // Not implemented for Winston
   }
 
@@ -210,10 +214,5 @@ export class StructuredLoggerService implements LoggerService {
       action: 'lock_failed',
       ...context,
     });
-  }
-
-  // Not used by NestJS
-  setLogLevels?(_levels: LogLevel[]): void {
-    // Not implemented for Winston
   }
 }

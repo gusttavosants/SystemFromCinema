@@ -54,7 +54,8 @@ export class EventsPublisherService {
         data: event,
       };
 
-      await this.eventPublisher.publishEvent(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      await (this.eventPublisher as any).publishEvent(
         'cinema.reservations',
         'reservation.created',
         eventPayload,
@@ -90,7 +91,8 @@ export class EventsPublisherService {
         data: event,
       };
 
-      await this.eventPublisher.publishEvent(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      await (this.eventPublisher as any).publishEvent(
         'cinema.reservations',
         'reservation.expired',
         eventPayload,
@@ -123,7 +125,8 @@ export class EventsPublisherService {
         data: event,
       };
 
-      await this.eventPublisher.publishEvent(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      await (this.eventPublisher as any).publishEvent(
         'cinema.payments',
         'payment.confirmed',
         eventPayload,
@@ -157,7 +160,8 @@ export class EventsPublisherService {
         data: event,
       };
 
-      await this.eventPublisher.publishEvent(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      await (this.eventPublisher as any).publishEvent(
         'cinema.reservations',
         'seat.released',
         eventPayload,
