@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { EventsPublisherService } from './events-publisher.service';
-import { IdempotencyService } from './idempotency.service';
-import type { CancelExpiredReservationsUseCase } from '@application/use-cases';
+import { CancelExpiredReservationsUseCase } from '@application/use-cases/booking/cancel-expired-reservations.use-case';
 import { IReservationRepository } from '@domain/booking/repositories/reservation.repository';
 
 @Injectable()
