@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Payment Confirmed</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; }
+    .header { text-align: center; color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 20px; }
+    .content { margin: 20px 0; line-height: 1.6; }
+    .details { background-color: #d4edda; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745; }
+    .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✅ Payment Confirmed!</h1>
+    </div>
+
+    <div class="content">
+      <p>Dear {{customerName}},</p>
+
+      <p>Your payment has been successfully processed! Your tickets are now confirmed.</p>
+
+      <div class="details">
+        <h3>Movie: {{movieTitle}}</h3>
+        <p><strong>Seats:</strong> {{seatNumbers}}</p>
+        <p><strong>Total Paid:</strong> ${{totalPrice}}</p>
+        <p><strong>Purchase Date:</strong> {{purchaseDate}}</p>
+      </div>
+
+      <p><strong>Please arrive at the cinema 15 minutes before show time.</strong></p>
+
+      <p>Show your reservation confirmation or ticket QR code at the entrance.</p>
+
+      <p>Thank you for your purchase! Enjoy the movie!</p>
+    </div>
+
+    <div class="footer">
+      <p>Cinema Booking System</p>
+    </div>
+  </div>
+</body>
+</html>

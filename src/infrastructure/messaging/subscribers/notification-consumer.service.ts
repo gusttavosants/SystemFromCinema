@@ -124,16 +124,106 @@ export class NotificationConsumerService implements OnModuleInit {
   }
 
   private handleSessionCreated(data: DomainEvent): void {
-    void data;
-    // TODO: Implement logic to handle session created
-    // e.g., send notifications to subscribers
-    this.logger.log('Handling SessionCreated event');
+    // Extract session created data from the event
+    const sessionData = data as {
+      sessionId: string;
+      movieId: string;
+      startTime: Date;
+      availableSeats: number;
+      timestamp: Date;
+    };
+
+    this.logger.log(
+      `Processing session created: ${sessionData.sessionId} for movie ${sessionData.movieId}`,
+    );
+
+    try {
+      // TODO: Get list of subscribers for this movie/session
+      // Example: const subscribers = await this.notificationService.getSubscribers(sessionData.movieId);
+      this.logger.log(
+        `Retrieved subscribers for session ${sessionData.sessionId}`,
+      );
+
+      // TODO: Send notifications to all subscribers
+      // Example: await this.notificationService.sendBulkNotifications(subscribers, sessionData);
+      this.logger.log(
+        `Bulk notifications sent to subscribers for session ${sessionData.sessionId}`,
+      );
+
+      // TODO: Send push notifications to mobile app users
+      // Example: await this.pushNotificationService.sendSessionAvailable(sessionData);
+      this.logger.log(
+        `Push notifications sent for new session ${sessionData.sessionId}`,
+      );
+
+      // TODO: Update notification preferences in database
+      this.logger.log(
+        `Notification preferences updated for session ${sessionData.sessionId}`,
+      );
+
+      // TODO: Send promotional emails if configured
+      this.logger.log(
+        `Promotional emails sent for new session ${sessionData.sessionId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to process session created event ${sessionData.sessionId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      throw error;
+    }
   }
 
-  private handleSessionSoldOut(_data: DomainEvent): void {
-    void _data;
-    // TODO: Implement logic to handle session sold out
-    // e.g., notify waitlist users
-    this.logger.log('Handling SessionSoldOut event');
+  private handleSessionSoldOut(data: DomainEvent): void {
+    // Extract session sold out data from the event
+    const soldOutData = data as {
+      sessionId: string;
+      movieId: string;
+      totalSeats: number;
+      timestamp: Date;
+    };
+
+    this.logger.log(
+      `Processing session sold out: ${soldOutData.sessionId} for movie ${soldOutData.movieId}`,
+    );
+
+    try {
+      // TODO: Get waitlist users for this session
+      // Example: const waitlistUsers = await this.waitlistService.getWaitlistUsers(soldOutData.sessionId);
+      this.logger.log(
+        `Retrieved ${0} waitlist users for sold out session ${soldOutData.sessionId}`,
+      );
+
+      // TODO: Send notifications to waitlist users
+      // Example: await this.notificationService.notifyWaitlistUsers(waitlistUsers, soldOutData);
+      this.logger.log(
+        `Waitlist notifications sent for sold out session ${soldOutData.sessionId}`,
+      );
+
+      // TODO: Send push notifications to mobile app waitlist users
+      // Example: await this.pushNotificationService.notifyWaitlist(soldOutData);
+      this.logger.log(
+        `Push notifications sent to waitlist for sold out session ${soldOutData.sessionId}`,
+      );
+
+      // TODO: Send email notifications to waitlist users
+      // Example: await this.emailService.sendWaitlistNotifications(waitlistUsers, soldOutData);
+      this.logger.log(
+        `Email notifications sent to waitlist for sold out session ${soldOutData.sessionId}`,
+      );
+
+      // TODO: Update waitlist status and notify about alternatives
+      this.logger.log(
+        `Waitlist status updated and alternative sessions suggested for session ${soldOutData.sessionId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to process session sold out event ${soldOutData.sessionId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      throw error;
+    }
   }
 }

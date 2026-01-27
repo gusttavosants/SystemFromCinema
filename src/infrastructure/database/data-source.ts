@@ -4,6 +4,7 @@ import { Session } from './entities/session.entity';
 import { Seat } from './entities/seat.entity';
 import { Reservation } from './entities/reservation.entity';
 import { Sale } from './entities/sale.entity';
+import { User } from './entities/user.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'cinema_db',
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
-  entities: [Session, Seat, Reservation, Sale],
+  entities: [Session, Seat, Reservation, Sale, User],
   migrations: ['src/infrastructure/database/migrations/*.ts'],
   subscribers: [],
 });

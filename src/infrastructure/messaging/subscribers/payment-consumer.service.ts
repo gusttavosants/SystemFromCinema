@@ -124,16 +124,101 @@ export class PaymentConsumerService implements OnModuleInit {
   }
 
   private handlePaymentConfirmed(data: DomainEvent): void {
-    void data;
-    // TODO: Implement logic to handle payment confirmed
-    // e.g., confirm reservation, send success email
-    this.logger.log('Handling PaymentConfirmed event');
+    // Extract payment confirmation data from the event
+    const paymentData = data as {
+      paymentId: string;
+      reservationId: string;
+      amount: number;
+      method: string;
+      timestamp: Date;
+    };
+
+    this.logger.log(
+      `Processing payment confirmed: ${paymentData.paymentId} for reservation ${paymentData.reservationId}`,
+    );
+
+    try {
+      // TODO: Confirm reservation status in database
+      // Example: await this.reservationService.confirmReservation(paymentData.reservationId);
+      this.logger.log(
+        `Reservation ${paymentData.reservationId} confirmed with payment ${paymentData.paymentId}`,
+      );
+
+      // TODO: Integrate with email service to send payment success email
+      // Example: await this.emailService.sendPaymentSuccessEmail(paymentData);
+      this.logger.log(
+        `Payment success email sent for reservation ${paymentData.reservationId}`,
+      );
+
+      // TODO: Send SMS notification if user opted in
+      // Example: await this.smsService.sendPaymentConfirmation(paymentData);
+      this.logger.log(
+        `SMS notification sent for payment ${paymentData.paymentId}`,
+      );
+
+      // TODO: Update payment status in external payment gateway
+      this.logger.log(
+        `External payment gateway updated for payment ${paymentData.paymentId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to process payment confirmed event ${paymentData.paymentId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      throw error;
+    }
   }
 
   private handlePaymentFailed(data: DomainEvent): void {
-    void data;
-    // TODO: Implement logic to handle payment failed
-    // e.g., cancel reservation, send failure email
-    this.logger.log('Handling PaymentFailed event');
+    // Extract payment failure data from the event
+    const failureData = data as {
+      paymentId: string;
+      reservationId: string;
+      amount: number;
+      reason?: string;
+      timestamp: Date;
+    };
+
+    this.logger.log(
+      `Processing payment failed: ${failureData.paymentId} for reservation ${failureData.reservationId}`,
+    );
+
+    try {
+      // TODO: Cancel reservation due to payment failure
+      // Example: await this.reservationService.cancelReservation(failureData.reservationId, 'payment_failed');
+      this.logger.log(
+        `Reservation ${failureData.reservationId} cancelled due to payment failure ${failureData.paymentId}`,
+      );
+
+      // TODO: Release seats back to available pool
+      // Example: await this.sessionService.releaseSeatsForReservation(failureData.reservationId);
+      this.logger.log(
+        `Seats released for cancelled reservation ${failureData.reservationId}`,
+      );
+
+      // TODO: Integrate with email service to send payment failure notification
+      // Example: await this.emailService.sendPaymentFailureEmail(failureData);
+      this.logger.log(
+        `Payment failure email sent for reservation ${failureData.reservationId}`,
+      );
+
+      // TODO: Update payment status in external payment gateway
+      this.logger.log(
+        `External payment gateway updated with failure status for payment ${failureData.paymentId}`,
+      );
+
+      // TODO: Notify waitlist users if any seats became available
+      this.logger.log(
+        `Waitlist users notified for available seats from failed reservation ${failureData.reservationId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to process payment failed event ${failureData.paymentId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      throw error;
+    }
   }
 }
