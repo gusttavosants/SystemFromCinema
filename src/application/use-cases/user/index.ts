@@ -1,1 +1,1 @@
-export { GetUserPurchaseHistoryUseCase } from './get-purchase-history.use-case';
+export { GetUserPurchaseHistoryUseCase } from './get-user-purchase-history.use-case';
