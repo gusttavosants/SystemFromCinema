@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 export interface CinemaError {
   code: string;
@@ -32,7 +32,7 @@ export class CinemaExceptionFilter implements ExceptionFilter {
   catch(exception: CinemaException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest();
+    const request = ctx.getRequest<Request>();
 
     const status = exception.getStatus();
     const errorResponse = exception.getResponse() as CinemaError;
