@@ -47,14 +47,12 @@ export class CreateReservationUseCase {
         this.buildSeatLockResources(input.sessionId, input.seatNumbers),
         async () => {
           await this.unitOfWork.transactionPessimistic(async () => {
-            // Lock pessimista para evitar race condition
             const seatsWithLock =
               await this.seatRepository.findWithPessimisticLock(
                 input.sessionId,
                 input.seatNumbers,
               );
 
-            // Validar que todos os assentos estão disponíveis
             const unavailableSeats = seatsWithLock.filter(
               (s) => s.status !== 'available',
             );
@@ -65,7 +63,6 @@ export class CreateReservationUseCase {
               );
             }
 
-            // Criar reserva
             const totalPrice = session
               .getPrice()
               .multiply(input.seatNumbers.length);
@@ -76,10 +73,8 @@ export class CreateReservationUseCase {
               totalPrice,
             });
 
-            // Salvar reserva
             await this.reservationRepository.create(reservation);
 
-            // Marcar assentos como reservados
             for (const seat of seatsWithLock) {
               seat.updateStatus('reserved');
               await this.seatRepository.update(seat);
@@ -92,11 +87,9 @@ export class CreateReservationUseCase {
         },
       );
     } catch {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       throw new LockAcquisitionFailedException('reservation');
     }
 
-    // Publicar evento de reserva criada
     await this.eventsPublisher.publishReservationCreated({
       reservationId: reservation.getId(),
       sessionId: reservation.getSessionId(),
@@ -107,7 +100,6 @@ export class CreateReservationUseCase {
       createdAt: reservation.getCreatedAt(),
     });
 
-    // Enviar notificação por email
     try {
       const user = await this.userRepository.findById(input.userId);
       if (user) {
@@ -124,7 +116,6 @@ export class CreateReservationUseCase {
         );
       }
     } catch (error) {
-      // Não falhar a reserva por causa de erro na notificação
       console.error('Failed to send reservation confirmation email:', error);
     }
 

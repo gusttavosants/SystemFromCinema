@@ -38,7 +38,6 @@ export class EmailNotificationService {
 
   async sendEmail(notification: EmailNotification): Promise<void> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       await (this.mailerService as any).sendMail({
         to: notification.to,
         subject: notification.subject,

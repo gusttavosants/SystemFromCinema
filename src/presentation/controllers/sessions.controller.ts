@@ -97,7 +97,6 @@ export class SessionsController {
     description: 'Session not found',
   })
   getById(): Promise<SessionResponseDTO> {
-    // TODO: Implementar GetSessionByIdUseCase
     throw new Error('Not implemented');
   }
 

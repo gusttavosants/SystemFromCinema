@@ -36,7 +36,6 @@ export class StructuredLoggerService implements LoggerService {
             }),
           ),
         }),
-        // Adicionar file transport em produção
         ...(process.env.NODE_ENV === 'production'
           ? [
               new winston.transports.File({

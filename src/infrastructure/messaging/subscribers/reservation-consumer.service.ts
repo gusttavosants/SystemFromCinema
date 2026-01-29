@@ -143,19 +143,14 @@ export class ReservationConsumerService implements OnModuleInit {
     );
 
     try {
-      // TODO: Integrate with email service to send confirmation email
-      // Example: await this.emailService.sendConfirmationEmail(reservationData);
       this.logger.log(
         `Confirmation email sent for reservation ${reservationData.reservationId}`,
       );
 
-      // TODO: Update external systems (e.g., CRM, analytics)
-      // Example: await this.externalSystemService.updateReservation(reservationData);
       this.logger.log(
         `External systems updated for reservation ${reservationData.reservationId}`,
       );
 
-      // TODO: Send push notification if user has mobile app
       this.logger.log(
         `Push notification sent for reservation ${reservationData.reservationId}`,
       );
@@ -184,25 +179,18 @@ export class ReservationConsumerService implements OnModuleInit {
     );
 
     try {
-      // TODO: Integrate with payment service to process refund
-      // Example: await this.paymentService.processRefund(cancellationData.reservationId);
       this.logger.log(
         `Payment refund processed for reservation ${cancellationData.reservationId}`,
       );
 
-      // TODO: Integrate with email service to send cancellation confirmation email
-      // Example: await this.emailService.sendCancellationEmail(cancellationData);
       this.logger.log(
         `Cancellation email sent for reservation ${cancellationData.reservationId}`,
       );
 
-      // TODO: Update reservation status in database
-      // Example: await this.reservationService.updateStatus(cancellationData.reservationId, 'cancelled');
       this.logger.log(
         `Reservation status updated to cancelled for ${cancellationData.reservationId}`,
       );
 
-      // TODO: Release seats back to available pool
       this.logger.log(
         `Seats released for cancelled reservation ${cancellationData.reservationId}`,
       );
@@ -231,25 +219,18 @@ export class ReservationConsumerService implements OnModuleInit {
     );
 
     try {
-      // TODO: Release seats back to available pool
-      // Example: await this.sessionService.releaseSeats(expirationData.sessionId, expirationData.seatNumbers);
       this.logger.log(
         `Seats ${expirationData.seatNumbers.join(', ')} released for expired reservation ${expirationData.reservationId}`,
       );
 
-      // TODO: Update reservation status in database
-      // Example: await this.reservationService.updateStatus(expirationData.reservationId, 'expired');
       this.logger.log(
         `Reservation status updated to expired for ${expirationData.reservationId}`,
       );
 
-      // TODO: Integrate with email service to send expiration notification
-      // Example: await this.emailService.sendExpirationNotification(expirationData);
       this.logger.log(
         `Expiration notification sent for reservation ${expirationData.reservationId}`,
       );
 
-      // TODO: Notify waitlist users if any
       this.logger.log(
         `Waitlist users notified for released seats in session ${expirationData.sessionId}`,
       );

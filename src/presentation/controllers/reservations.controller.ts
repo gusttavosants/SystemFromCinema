@@ -195,7 +195,6 @@ export class ReservationsController {
       'Reservation cannot be cancelled (already confirmed or expired)',
   })
   cancel(): Promise<{ success: boolean }> {
-    // TODO: Implementar CancelReservationUseCase
     throw new Error('Not implemented');
   }
 }

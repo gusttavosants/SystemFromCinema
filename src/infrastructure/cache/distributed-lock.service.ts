@@ -30,10 +30,6 @@ export class DistributedLockService {
 
   constructor(private readonly redisService: RedisService) {}
 
-  /**
-   * Adquire um lock distribuído usando Redlock algorithm
-   * Retorna um token único que deve ser usado para liberar o lock
-   */
   async acquireLock(
     resource: string,
     options: LockOptions = {},
@@ -94,15 +90,10 @@ export class DistributedLockService {
     return null;
   }
 
-  /**
-   * Libera um lock distribuído
-   * Verifica o token antes de liberar (segurança contra liberação acidental)
-   */
   async releaseLock(resource: string, lockToken: string): Promise<boolean> {
     const lockKey = `lock:${resource}`;
 
     try {
-      // Script Lua para remover lock atomicamente apenas se o token bate
       const script = `
         if redis.call("get", KEYS[1]) == ARGV[1] then
           return redis.call("del", KEYS[1])
@@ -144,7 +135,6 @@ export class DistributedLockService {
     const lockKey = `lock:${resource}`;
 
     try {
-      // Script Lua para estender TTL atomicamente apenas se o token bate
       const script = `
         if redis.call("get", KEYS[1]) == ARGV[1] then
           return redis.call("pexpire", KEYS[1], ARGV[2])
@@ -176,10 +166,6 @@ export class DistributedLockService {
     }
   }
 
-  /**
-   * Executa função com lock automático
-   * Garante que lock é sempre liberado (mesmo em caso de erro)
-   */
   async executeWithLock<T>(
     resource: string,
     callback: () => Promise<T>,
