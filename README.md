@@ -269,22 +269,6 @@ src/
 └── shared/              # Utilitários compartilhados
 ```
 
-## ⚠️ Limitações Conhecidas
-
-1. **Autenticação simplificada**: JWT implementado mas não aplicado em todos os endpoints
-2. **Rate Limiting**: Não implementado (seria um diferencial adicional)
-3. **Testes de carga**: Não foram realizados testes de stress com múltiplos usuários simultâneos
-4. **Monitoramento**: Não há integração com ferramentas como Prometheus/Grafana
-
-## 🔮 Melhorias Futuras
-
-1. **Rate Limiting**: Implementar limitação de requisições por IP/usuário usando Redis
-2. **Circuit Breaker**: Adicionar padrão circuit breaker para chamadas externas
-3. **Métricas**: Integrar com Prometheus para métricas de performance
-4. **Testes de Carga**: Usar k6 ou Artillery para simular cenários de alta concorrência
-5. **CQRS**: Separar modelos de leitura e escrita para melhor escalabilidade
-6. **Cache de Sessões**: Implementar cache de disponibilidade para reduzir queries
-
 ## 📝 Exemplo de Fluxo para Testar
 
 ```bash
