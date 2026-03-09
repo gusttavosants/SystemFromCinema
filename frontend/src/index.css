@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 4%;
+    --foreground: 0 0% 95%;
+
+    --card: 240 8% 8%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 240 8% 8%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 0 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 6% 14%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 240 6% 14%;
+    --muted-foreground: 240 5% 55%;
+
+    --accent: 42 90% 55%;
+    --accent-foreground: 240 10% 4%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 6% 18%;
+    --input: 240 6% 18%;
+    --ring: 0 85% 55%;
+
+    --radius: 0.75rem;
+
+    --cinema-glow: 0 85% 55%;
+    --cinema-gold: 42 90% 55%;
+    --cinema-dark: 240 10% 4%;
+    --cinema-surface: 240 8% 8%;
+    --cinema-surface-hover: 240 8% 12%;
+    --cinema-success: 142 71% 45%;
+    --cinema-warning: 38 92% 50%;
+    --cinema-info: 217 91% 60%;
+
+    --sidebar-background: 240 10% 6%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 0 85% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 6% 14%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 240 6% 18%;
+    --sidebar-ring: 0 85% 55%;
+
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: 0.04em;
+  }
+}
+
+@layer utilities {
+  .cinema-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--cinema-gold)) 100%);
+  }
+
+  .cinema-gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--cinema-gold)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .cinema-glow {
+    box-shadow: 0 0 30px -5px hsl(var(--primary) / 0.4);
+  }
+
+  .cinema-card {
+    background: hsl(var(--cinema-surface));
+    border: 1px solid hsl(var(--border));
+    transition: all 0.3s ease;
+  }
+
+  .cinema-card:hover {
+    border-color: hsl(var(--primary) / 0.4);
+    box-shadow: 0 8px 30px -10px hsl(var(--primary) / 0.2);
+    transform: translateY(-2px);
+  }
+
+  .cinema-overlay {
+    background: linear-gradient(to top, hsl(var(--cinema-dark)) 0%, transparent 100%);
+  }
+
+  .seat-available {
+    background: hsl(var(--cinema-success) / 0.2);
+    border: 2px solid hsl(var(--cinema-success));
+    cursor: pointer;
+  }
+  .seat-available:hover {
+    background: hsl(var(--cinema-success) / 0.5);
+  }
+  .seat-occupied {
+    background: hsl(var(--primary) / 0.3);
+    border: 2px solid hsl(var(--primary) / 0.5);
+    cursor: not-allowed;
+  }
+  .seat-selected {
+    background: hsl(var(--cinema-info) / 0.4);
+    border: 2px solid hsl(var(--cinema-info));
+  }
+  .seat-reserved {
+    background: hsl(var(--cinema-warning) / 0.3);
+    border: 2px solid hsl(var(--cinema-warning) / 0.5);
+    cursor: not-allowed;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
