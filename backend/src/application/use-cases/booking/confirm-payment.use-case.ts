@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 
 import { ConfirmPaymentRequestDTO, SaleResponseDTO } from '@application/dtos';
 import { Sale } from '@domain/booking/entities/sale.entity';
@@ -19,9 +19,13 @@ import {
 export class ConfirmPaymentUseCase {
   constructor(
     private readonly unitOfWork: UnitOfWork,
+    @Inject('IReservationRepository')
     private readonly reservationRepository: IReservationRepository,
+    @Inject('ISaleRepository')
     private readonly saleRepository: ISaleRepository,
+    @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
+    @Inject('ISessionRepository')
     private readonly sessionRepository: ISessionRepository,
     private readonly eventsPublisher: EventsPublisherService,
     private readonly emailNotificationService: EmailNotificationService,

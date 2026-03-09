@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { CinemaExceptionFilter } from '@shared/filters';
 import { ResponseInterceptor } from '@shared/interceptors';
@@ -18,9 +19,8 @@ import {
 
 import { RedisModule } from '@infrastructure/cache';
 import { EventPublisherModule } from '@infrastructure/messaging';
-import { EventsModule, EventsPublisherService } from '@infrastructure/events';
+import { EventsModule } from '@infrastructure/events';
 import { DatabaseModule } from '@infrastructure/database';
-import { UserRepository } from '@infrastructure/database/repositories/user.repository';
 import { JwtStrategy } from '@infrastructure/auth/jwt.strategy';
 import { NotificationModule } from '@infrastructure/notifications/notification.module';
 import { StructuredLoggerService } from '@infrastructure/logging';
@@ -31,6 +31,7 @@ import { ApplicationModule } from './application/application.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     CacheModule.register({
       isGlobal: true,
     }),
@@ -60,8 +61,6 @@ import { ApplicationModule } from './application/application.module';
 
   providers: [
     JwtStrategy,
-    UserRepository,
-    EventsPublisherService,
     StructuredLoggerService,
     {
       provide: APP_INTERCEPTOR,

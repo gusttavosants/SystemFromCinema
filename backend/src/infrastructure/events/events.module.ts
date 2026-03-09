@@ -1,20 +1,16 @@
 import { Module } from '@nestjs/common';
-import { ScheduleModule } from '@nestjs/schedule';
-import { KafkaModule } from '@infrastructure/messaging';
-import {
-  EventsPublisherService,
-  EventsSubscriberService,
-  IdempotencyService,
-} from './index';
-import { ReservationExpirationWorker } from './services/reservation-expiration.worker';
+import { EventPublisherModule, KafkaModule } from '@infrastructure/messaging';
+import { RedisModule } from '@infrastructure/cache';
+import { EventsPublisherService } from './services/events-publisher.service';
+import { EventsSubscriberService } from './services/events-subscriber.service';
+import { IdempotencyService } from './services/idempotency.service';
 import { StructuredLoggerService } from '@infrastructure/logging';
 
 @Module({
-  imports: [KafkaModule, ScheduleModule.forRoot()],
+  imports: [EventPublisherModule, KafkaModule, RedisModule],
   providers: [
     EventsPublisherService,
     EventsSubscriberService,
-    ReservationExpirationWorker,
     IdempotencyService,
     StructuredLoggerService,
   ],

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 
 import { SessionAvailabilityResponseDTO } from '@application/dtos';
 import type { ISessionRepository } from '@domain/cinema/repositories/session.repository';
@@ -9,8 +9,11 @@ import { RedisService } from '@infrastructure/cache';
 @Injectable()
 export class GetSessionAvailabilityUseCase {
   constructor(
+    @Inject('ISessionRepository')
     private readonly sessionRepository: ISessionRepository,
+    @Inject('ISeatRepository')
     private readonly seatRepository: ISeatRepository,
+    @Inject('IReservationRepository')
     private readonly reservationRepository: IReservationRepository,
     private readonly redisService: RedisService,
   ) {}

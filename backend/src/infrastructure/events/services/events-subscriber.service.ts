@@ -53,7 +53,7 @@ export class EventsSubscriberService implements OnModuleInit {
       await reservationConsumer.connect();
 
       await reservationConsumer.subscribe({
-        topic: 'cinema.reservations',
+        topics: ['cinema.reservations'],
         fromBeginning: false,
       });
 
@@ -80,7 +80,7 @@ export class EventsSubscriberService implements OnModuleInit {
       await paymentConsumer.connect();
 
       await paymentConsumer.subscribe({
-        topic: 'cinema.payments',
+        topics: ['cinema.payments'],
         fromBeginning: false,
       });
 

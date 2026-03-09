@@ -1,18 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 
 import type { IReservationRepository } from '@domain/booking/repositories/reservation.repository';
 import { UnitOfWork } from '@infrastructure/database/unit-of-work';
 import { WithLock } from '@shared/decorators/with-lock.decorator';
 import { DistributedLockService } from '@infrastructure/cache';
-import { EventsPublisherService } from '@infrastructure/events';
+import { EventsPublisherService } from '../../../infrastructure/events/services/events-publisher.service';
 
 @Injectable()
 export class CancelExpiredReservationsUseCase {
   constructor(
-    private readonly unitOfWork: UnitOfWork,
+    @Inject('IReservationRepository')
     private readonly reservationRepository: IReservationRepository,
     private readonly distributedLockService: DistributedLockService,
     private readonly eventsPublisher: EventsPublisherService,
+    private readonly unitOfWork: UnitOfWork,
   ) {}
 
   @WithLock('reservations:expire', { ttl: 60000, maxRetries: 3 })

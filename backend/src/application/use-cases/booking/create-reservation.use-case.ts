@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 
 import {
   CreateReservationRequestDTO,
@@ -16,15 +16,20 @@ import { EmailNotificationService } from '@infrastructure/notifications/email-no
 import {
   SessionNotFoundException,
   SeatNotAvailableException,
+  LockAcquisitionFailedException,
 } from '@domain/cinema/exceptions';
 
 @Injectable()
 export class CreateReservationUseCase {
   constructor(
     private readonly unitOfWork: UnitOfWork,
+    @Inject('ISessionRepository')
     private readonly sessionRepository: ISessionRepository,
+    @Inject('ISeatRepository')
     private readonly seatRepository: ISeatRepository,
+    @Inject('IReservationRepository')
     private readonly reservationRepository: IReservationRepository,
+    @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
     private readonly distributedLockService: DistributedLockService,
     private readonly eventsPublisher: EventsPublisherService,

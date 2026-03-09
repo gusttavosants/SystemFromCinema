@@ -8,7 +8,7 @@ export class CacheService {
 
   get<T>(key: string): Promise<T | undefined> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    return (this.cacheManager as any).get<T>(key);
+    return (this.cacheManager as any).get(key);
   }
 
   set<T>(key: string, value: T, ttl?: number): Promise<void> {

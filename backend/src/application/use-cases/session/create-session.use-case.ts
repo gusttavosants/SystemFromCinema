@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 
 import { CreateSessionRequestDTO, SessionResponseDTO } from '@application/dtos';
 import { Session } from '@domain/cinema/entities/session.entity';
@@ -10,6 +10,7 @@ import { UnitOfWork } from '@infrastructure/database/unit-of-work';
 export class CreateSessionUseCase {
   constructor(
     private readonly unitOfWork: UnitOfWork,
+    @Inject('ISessionRepository')
     private readonly sessionRepository: ISessionRepository,
   ) {}
 

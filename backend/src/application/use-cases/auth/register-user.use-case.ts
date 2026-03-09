@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { RegisterUserRequestDTO } from '@application/dtos';
@@ -8,7 +8,10 @@ import { UserAlreadyExistsException } from '@domain/user/exceptions/user.excepti
 
 @Injectable()
 export class RegisterUserUseCase {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    @Inject('IUserRepository')
+    private readonly userRepository: IUserRepository,
+  ) {}
 
   async execute(dto: RegisterUserRequestDTO): Promise<User> {
     // Check if user already exists

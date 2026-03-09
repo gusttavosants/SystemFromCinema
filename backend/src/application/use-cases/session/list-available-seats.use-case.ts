@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 
 import {
   ListAvailableSeatsRequestDTO,
@@ -11,7 +11,9 @@ import type { ISessionRepository } from '@domain/cinema/repositories/session.rep
 @Injectable()
 export class ListAvailableSeatsUseCase {
   constructor(
+    @Inject('ISessionRepository')
     private readonly sessionRepository: ISessionRepository,
+    @Inject('ISeatRepository')
     private readonly seatRepository: ISeatRepository,
   ) {}
 

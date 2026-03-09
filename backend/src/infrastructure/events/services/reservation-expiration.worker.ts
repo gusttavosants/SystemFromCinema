@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { EventsPublisherService } from './events-publisher.service';
-import { CancelExpiredReservationsUseCase } from '@application/use-cases/booking/cancel-expired-reservations.use-case';
+import { EventsPublisherService } from '../../events/services/events-publisher.service';
+import { CancelExpiredReservationsUseCase } from '../../../application/use-cases/booking/cancel-expired-reservations.use-case';
 import type { IReservationRepository } from '@domain/booking/repositories/reservation.repository';
 
 @Injectable()
@@ -10,6 +10,7 @@ export class ReservationExpirationWorker {
 
   constructor(
     private readonly eventsPublisher: EventsPublisherService,
+    @Inject('IReservationRepository')
     private readonly reservationRepository: IReservationRepository,
     private readonly cancelExpiredReservationsUseCase: CancelExpiredReservationsUseCase,
   ) {}

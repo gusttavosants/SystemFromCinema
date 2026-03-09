@@ -28,8 +28,8 @@ export class Seat {
   seatNumber: number;
 
   @Column({
-    type: 'enum',
-    enum: ['available', 'reserved', 'sold'],
+    type: 'varchar',
+    length: 20,
     default: 'available',
   })
   status: 'available' | 'reserved' | 'sold';

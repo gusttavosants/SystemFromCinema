@@ -24,7 +24,7 @@ export class Session {
   @Column({ type: 'varchar', length: 255, nullable: false })
   movieTitle: string;
 
-  @Column({ type: 'timestamp', nullable: false })
+  @Column({ type: 'datetime', nullable: false })
   showTime: Date;
 
   @Column({ type: 'varchar', length: 100, nullable: false })

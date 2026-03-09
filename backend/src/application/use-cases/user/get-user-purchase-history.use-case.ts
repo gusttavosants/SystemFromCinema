@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 
 import {
   UserPurchaseHistoryResponseDTO,
@@ -11,7 +11,9 @@ import { CacheService } from '@infrastructure/cache/cache.service';
 @Injectable()
 export class GetUserPurchaseHistoryUseCase {
   constructor(
+    @Inject('ISaleRepository')
     private readonly saleRepository: ISaleRepository,
+    @Inject('ISessionRepository')
     private readonly sessionRepository: ISessionRepository,
     private readonly cacheService: CacheService,
   ) {}

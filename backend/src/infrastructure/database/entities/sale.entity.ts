@@ -45,8 +45,8 @@ export class Sale {
   paymentTransactionId: string;
 
   @Column({
-    type: 'enum',
-    enum: ['pending', 'confirmed', 'refunded'],
+    type: 'varchar',
+    length: 20,
     default: 'pending',
   })
   status: 'pending' | 'confirmed' | 'refunded';
@@ -57,7 +57,7 @@ export class Sale {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   confirmedAt: Date;
 
   @VersionColumn()

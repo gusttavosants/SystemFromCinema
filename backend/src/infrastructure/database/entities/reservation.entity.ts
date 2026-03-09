@@ -37,13 +37,13 @@ export class Reservation {
   totalPrice: number;
 
   @Column({
-    type: 'enum',
-    enum: ['pending', 'confirmed', 'expired', 'cancelled'],
+    type: 'varchar',
+    length: 20,
     default: 'pending',
   })
   status: 'pending' | 'confirmed' | 'expired' | 'cancelled';
 
-  @Column({ type: 'timestamp', nullable: false })
+  @Column({ type: 'datetime', nullable: false })
   expiresAt: Date;
 
   @CreateDateColumn()
