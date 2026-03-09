@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Reservation Confirmed</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; }
+    .header { text-align: center; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 20px; }
+    .content { margin: 20px 0; line-height: 1.6; }
+    .details { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎬 Reservation Confirmed!</h1>
+    </div>
+
+    <div class="content">
+      <p>Dear {{customerName}},</p>
+
+      <p>Your reservation has been successfully created! Here are the details:</p>
+
+      <div class="details">
+        <h3>Movie: {{movieTitle}}</h3>
+        <p><strong>Show Time:</strong> {{showTime}}</p>
+        <p><strong>Seats:</strong> {{seatNumbers}}</p>
+        <p><strong>Total Price:</strong> ${{totalPrice}}</p>
+        <p><strong>Reservation ID:</strong> {{reservationId}}</p>
+      </div>
+
+      <p><strong>Important:</strong> Your reservation will expire in 30 minutes. Please complete your payment before then to secure your seats.</p>
+
+      <p>Thank you for choosing our cinema!</p>
+    </div>
+
+    <div class="footer">
+      <p>Cinema Booking System</p>
+    </div>
+  </div>
+</body>
+</html>
